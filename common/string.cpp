@@ -75,33 +75,27 @@ bool isgraph_safe(int chr) {
 
 _STDLIB_BEGIN
 
-_ALWAYS_INLINE
 ZStr _STDLIB(create_string__)(const char* raw) {
     return new std::string(raw);
 }
 
-_ALWAYS_INLINE
 void _STDLIB(release_string__)(ZStr str) {
     // danger! do not imitate
     delete const_cast<std::string*>(str);
 }
 
-_ALWAYS_INLINE
 ZStr _STDLIB(int_to_string__)(int raw) {
     return new std::string(std::to_string(raw));
 }
 
-_ALWAYS_INLINE
 ZStr _STDLIB(float_to_string__)(float raw) {
     return new std::string(std::to_string(raw));
 }
 
-_ALWAYS_INLINE
 int _STDLIB(StringEquals)(ZStr a, ZStr b) {
     return *a == *b;
 }
 
-_ALWAYS_INLINE
 ZStr _STDLIB(Concat)(ZStr str, ZStr b) {
     return new std::string(*str + *b);
 }
