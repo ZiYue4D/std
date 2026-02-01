@@ -48,12 +48,3 @@ Extern Print(str$)
 Extern unsafe_ptr_to_int%(ptr@)
 Extern unsafe_int_to_ptr@(ptr%)
 Extern unsafe_cstr@(str$)
-
-/*****************************************/
-/*          INTERNAL FUNCTIONS           */
-/* Calling them are undefined behaviors! */
-/*****************************************/
-Extern create_string__$(raw@)
-Extern release_string__(str$)
-Extern int_to_string__$(raw%)
-Extern float_to_string__$(raw#)

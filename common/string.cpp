@@ -1,6 +1,10 @@
 #include "std.hpp"
-#include <sstream>
+
+#include <charconv>
 #include <iomanip>
+#include <sstream>
+#define XXH_INLINE_ALL
+#include "xxhash.h"
 
 int measure_codepoint(char chr) {
     if ((chr & 0x80) == 0x00) return 1;
@@ -248,14 +252,14 @@ ZStr _STDLIB(Chr)(int value) {
 }
 
 ZStr _STDLIB(Hex)(int value) {
-    static char buff[33];
-    _itoa_s(value, buff, 16);
+    static char buff[16];
+    std::to_chars(buff, buff + 16, value, 16);
     return new std::string(buff);
 }
 
 ZStr _STDLIB(Bin)(int value) {
     static char buff[33];
-    _itoa_s(value, buff, 2);
+    std::to_chars(buff, buff + 16, value, 2);
     return new std::string(buff);
 }
 
@@ -265,8 +269,13 @@ int _STDLIB(Asc)(ZStr str) {
 
 ZStr _STDLIB(HighPrecisionFloatString)(float value) {
     std::ostringstream stream;
-    stream << std::setprecision(20) << value;
+    stream << std::fixed << std::setprecision(20) << value;
     return new std::string(stream.str());
+}
+
+__int128 _STDLIB(string_hash_128__)(ZStr str) {
+    const auto [low64, high64] = XXH3_128bits(str->data(), str->size());
+    return static_cast<__int128>(high64) << 64 | low64;
 }
 
 _STDLIB_END

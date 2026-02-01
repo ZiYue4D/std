@@ -1,9 +1,17 @@
-
 cmake_minimum_required(VERSION 3.13)
 project(std)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(NOT DEFINED PLATFORM)
-    set(PLATFORM "windows")
+    if(WIN32)
+        set(PLATFORM "windows")
+    elseif(UNIX AND NOT APPLE)
+        set(PLATFORM "linux")
+    else()
+        set(PLATFORM "windows")  # Default fallback
+    endif()
 endif()
 
 message(STATUS "Target platform: ${PLATFORM}")
@@ -16,17 +24,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -emit-llvm -c")
-
-set(COMMON_DIR "${CMAKE_SOURCE_DIR}/common")
 set(PLATFORM_DIR "${CMAKE_SOURCE_DIR}/${PLATFORM}")
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bc)
 
-file(GLOB COMMON_SOURCES "${COMMON_DIR}/*.cpp")
+file(GLOB COMMON_SOURCES "common/*.cpp")
 file(GLOB PLATFORM_SOURCES "${PLATFORM_DIR}/*.cpp")
 
 set(BC_FILES "")
@@ -35,7 +37,7 @@ foreach(SRC ${COMMON_SOURCES} ${PLATFORM_SOURCES})
     set(BC_FILE "${CMAKE_BINARY_DIR}/bc/${FILENAME}.bc")
     add_custom_command(
         OUTPUT ${BC_FILE}
-        COMMAND ${CLANG_EXECUTABLE} -emit-llvm -c ${SRC} -o ${BC_FILE}
+        COMMAND ${CLANG_EXECUTABLE} -emit-llvm -nostdlib -march=native -c ${SRC} -o ${BC_FILE}
         DEPENDS ${SRC}
         COMMENT "Compiling ${SRC} to LLVM bitcode"
     )
@@ -56,16 +58,22 @@ add_custom_command(
     COMMENT "Optimizing std.bc into std.opt.bc"
 )
 
-add_custom_target(std ALL
+add_custom_target(dummy_bitcode ALL
     DEPENDS ${CMAKE_BINARY_DIR}/std.opt.bc
-    DEPENDS ${CMAKE_BINARY_DIR}/std.sb
 )
 
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/std.sb
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_SOURCE_DIR}/std.sb
-            ${CMAKE_BINARY_DIR}/std.sb
-    DEPENDS ${CMAKE_SOURCE_DIR}/std.sb
-    COMMENT "Copying std header to build directory"
+add_library(dummy_ide_support
+    ${COMMON_SOURCES}
+    ${PLATFORM_SOURCES}
 )
+
+add_custom_target(dummy_gen
+    DEPENDS ${CMAKE_BINARY_DIR}/std.opt.bc
+    COMMENT "Generate LLVM bitcode files"
+)
+
+add_custom_target(std
+    COMMAND ;
+    COMMENT "Build LLVM bitcode version of std library"
+)
+add_dependencies(std dummy_bitcode)
