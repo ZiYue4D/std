@@ -37,7 +37,7 @@ foreach(SRC ${COMMON_SOURCES} ${PLATFORM_SOURCES})
     set(BC_FILE "${CMAKE_BINARY_DIR}/bc/${FILENAME}.bc")
     add_custom_command(
         OUTPUT ${BC_FILE}
-        COMMAND ${CLANG_EXECUTABLE} -emit-llvm -nostdlib -march=native -c ${SRC} -o ${BC_FILE}
+        COMMAND ${CLANG_EXECUTABLE} -emit-llvm -nostdlib -c ${SRC} -o ${BC_FILE}
         DEPENDS ${SRC}
         COMMENT "Compiling ${SRC} to LLVM bitcode"
     )

@@ -3,8 +3,6 @@
 #include <charconv>
 #include <iomanip>
 #include <sstream>
-#define XXH_INLINE_ALL
-#include "xxhash.h"
 
 int measure_codepoint(char chr) {
     if ((chr & 0x80) == 0x00) return 1;
@@ -79,23 +77,6 @@ bool isgraph_safe(int chr) {
 
 _STDLIB_BEGIN
 
-ZStr _STDLIB(create_string__)(const char* raw) {
-    return new std::string(raw);
-}
-
-void _STDLIB(release_string__)(ZStr str) {
-    // danger! do not imitate
-    delete const_cast<std::string*>(str);
-}
-
-ZStr _STDLIB(int_to_string__)(int raw) {
-    return new std::string(std::to_string(raw));
-}
-
-ZStr _STDLIB(float_to_string__)(float raw) {
-    return new std::string(std::to_string(raw));
-}
-
 int _STDLIB(StringEquals)(ZStr a, ZStr b) {
     return *a == *b;
 }
@@ -137,14 +118,14 @@ int _STDLIB(Len)(ZStr str) {
 }
 
 ZStr _STDLIB(Substr)(ZStr str, int start, int length) {
-    int utf8Index = 0;
-    int bytesStart = str->size();
-    int bytesLength = str->size();
+    size_t utf8Index = 0;
+    size_t bytesStart = str->size();
+    size_t bytesLength = str->size();
     for (int i = 0; i < str->size();) {
         if (start == utf8Index) {
             bytesStart = i;
         }
-        if ((start + length) == utf8Index) {
+        if (start + length == utf8Index) {
             bytesLength = i - bytesStart;
             break;
         }
@@ -271,11 +252,6 @@ ZStr _STDLIB(HighPrecisionFloatString)(float value) {
     std::ostringstream stream;
     stream << std::fixed << std::setprecision(20) << value;
     return new std::string(stream.str());
-}
-
-__int128 _STDLIB(string_hash_128__)(ZStr str) {
-    const auto [low64, high64] = XXH3_128bits(str->data(), str->size());
-    return static_cast<__int128>(high64) << 64 | low64;
 }
 
 _STDLIB_END

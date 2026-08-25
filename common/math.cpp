@@ -1,7 +1,6 @@
 #include "std.hpp"
 
 #include <math.h>
-#include <stdlib.h>
 
 _STDLIB_BEGIN
 

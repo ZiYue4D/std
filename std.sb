@@ -17,7 +17,7 @@ Extern Cos#(x#)
 Extern Round#(x#)
 
 /* string */
-Extern StringEquals(a$, b$)
+Extern StringEquals%(a$, b$)
 Extern Concat$(a$, b$)
 Extern Replace$(str$, old$, new$)
 Extern String$(str$, repeat%)
@@ -43,8 +43,20 @@ Extern HighPrecisionFloatString$(value#)
 
 /* stdio */
 Extern Print(str$)
+Extern Write(str$)
+Extern Input$(prompt$)
+Extern GetCommandLineArg$(argv@, index%)
 
 /* unsafe */
 Extern unsafe_ptr_to_int%(ptr@)
 Extern unsafe_int_to_ptr@(ptr%)
 Extern unsafe_cstr@(str$)
+
+/*****************************************/
+/*          INTERNAL FUNCTIONS           */
+/* Calling them are undefined behaviors! */
+/*****************************************/
+Extern create_string__$(raw@)
+Extern release_string__(str$)
+Extern int_to_string__$(raw%)
+Extern float_to_string__$(raw#)
